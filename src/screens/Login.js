@@ -1,5 +1,5 @@
-import { StyleSheet, Text, TextInput, View, Image, Button, Pressable, Alert } from 'react-native'
-import React from 'react'
+import { StyleSheet, Text, TextInput, View, Image, Button, Pressable, Alert, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
 
 // Images
 import background from '../../assets/background.jpg';
@@ -9,29 +9,73 @@ import logo from '../../assets/logo.png';
 import {submit} from '../common/button';
 import {input} from '../common/input';
 
-// Navigation
-import Register from './Register';
-import Landing from './Landing';
-
 const Login = ({ navigation }) => {
+  const [fdata, setFdata] = useState({
+    email: '',
+    password: ''
+  })
+
+  // const [isLoading, setLoading] = useState(false);
+  // const [isSuccess, setSuccessMsg] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  async function Sendtobackend() {
+    // setLoading(true);
+    // setSuccessMsg(false);
+    // setErrorMsg(false);
+
+    await fetch("https://2e45-128-195-97-159.ngrok-free.app/login", {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(fdata)
+      })
+          .then(res => res.json()).then(
+              data => {
+                  console.log(data);
+                  if (data.error) {
+                      alert(data.message);
+                      setErrorMsg(data.error);
+                  }
+                  else {
+                      alert('Logged in successfully');
+                      navigation.navigate('Landing');
+                  }
+              }
+          ).catch((error) => {
+            // Handle any errors that occur
+            console.error('Error:', error);
+            // setErrorMsg(true);
+        }).finally (()=> {
+          // setLoading(false);
+        });
+    }
+
   return (
     <View style = {styles.container}>
       <Image style={styles.bg} source={background}></Image>
       <View style = {styles.textContainer}>
-        <Image style={styles.logo} source={logo}></Image>
+        <TouchableOpacity onPress={() => navigation.navigate('Welcome')}>
+          <Image style={styles.logo} source={logo} />
+        </TouchableOpacity>
         <Text style = {{fontSize: 25, color: '#000', marginBottom: 20}}>Login to your Account</Text>
-        <TextInput style = {[input, {textTransform: 'lowercase'}]} placeholder="Email Address" keyboardType='email-address' />
-        <TextInput style = {input} placeholder="Password" secureTextEntry={true} />
+        {
+          errorMsg ? <Text style={[styles.text, {color: 'red'}]}>{errorMsg}</Text> : null
+        }
+        <TextInput style = {[input, {textTransform: 'lowercase'}]} placeholder="Email Address" keyboardType='email-address' onPressIn={() => setErrorMsg(null)}
+        onChangeText={(text) => setFdata({ ...fdata, email: text })}/>
+        <TextInput style = {input} placeholder="Password" secureTextEntry={true} onChangeText={(text) => setFdata({ ...fdata, password: text })}
+        onPressIn={() => setErrorMsg(null)} />
         <Text style={{fontSize: 15, color: '#000', marginTop: 10, marginBottom: 20}}>Don't have an account?&nbsp;
           <Text style={{color: '#004aad'}} onPress={() => navigation.navigate('Register')}>Register Now!</Text>
         </Text>
-        <Pressable style={submit} onPress={() => navigation.navigate('Landing')}>
+        <Pressable style={submit} onPress={Sendtobackend}>
           <Text style={styles.text}>Login</Text>
         </Pressable>
       </View>
     </View>
-  )
-}
+  )};
 
 export default Login
 

@@ -4,13 +4,19 @@ import React from 'react'
 // Images
 import background from '../../assets/background.jpg';
 
-const Landing = () => {
+// Styles
+import {submit} from '../common/button';
+
+const Landing = ({ navigation }) => {
   return (
     <View style = {styles.container}>
       <Image style={styles.bg} source={background}></Image>
       <View style = {styles.textContainer}>
         <Text style={styles.text}>Welcome to the landing page!</Text>
         <Text style={styles.text}>New content coming soon...</Text>
+        <Pressable style={[submit, {marginTop: 20}]} onPress={() => navigation.navigate('Login')}>
+          <Text style={styles.text}>Logout</Text>
+        </Pressable>
       </View>
     </View>
   )
